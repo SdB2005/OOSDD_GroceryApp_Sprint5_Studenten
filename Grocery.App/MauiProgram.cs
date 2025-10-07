@@ -47,6 +47,17 @@ namespace Grocery.App
             builder.Services.AddTransient<LoginView>().AddTransient<LoginViewModel>();
             builder.Services.AddTransient<BestSellingProductsView>().AddTransient<BestSellingProductsViewModel>();
             builder.Services.AddTransient<BoughtProductsView>().AddTransient<BoughtProductsViewModel>();
+            builder.Services.AddTransient<CategoriesView>().AddTransient<CategoriesViewModel>();
+            builder.Services.AddTransient<ProductCategoriesView>().AddTransient<ProductCategoriesViewModel>();
+            builder.Services.AddSingleton<ICategoryService, CategoryService>();
+            builder.Services.AddSingleton<IProductCategoryService, ProductCategoryService>();
+            builder.Services.AddSingleton<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddSingleton<IProductCategoryRepository, ProductCategoryRepository>();
+            builder.Services.AddTransient<CategoriesView>().AddTransient<CategoriesViewModel>();
+            builder.Services.AddTransient<ProductCategoriesView>().AddTransient<ProductCategoriesViewModel>();
+
+            Routing.RegisterRoute(nameof(ProductCategoriesView), typeof(ProductCategoriesView));
+
             return builder.Build();
         }
     }
