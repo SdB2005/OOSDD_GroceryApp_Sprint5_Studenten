@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Grocery.App.ViewModels"
+             x:Class="Grocery.App.Views.ProductCategoriesView"
+             Title="Producten in categorie">
+    <Grid Padding="10" ColumnSpacing="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackLayout Grid.Column="0">
+            <Label Text="{Binding Category.Name}" FontSize="24" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding AvailableProducts}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="8" Padding="8" BorderColor="LightGray">
+                            <StackLayout>
+                                <Label Text="{Binding Name}" FontSize="18" />
+                                <Label Text="{Binding Stock}" FontSize="14" />
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+
+        <StackLayout Grid.Column="1">
+            <Label Text="Producten zonder categorie" FontSize="20" FontAttributes="Bold" />
+            <SearchBar Placeholder="Zoek producten"
+                       Text="{Binding SearchText, Mode=TwoWay}" />
+            <CollectionView ItemsSource="{Binding UnassignedProducts}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Margin="8" Padding="8" BorderColor="LightGray">
+                            <StackLayout>
+                                <Label Text="{Binding Name}" FontSize="18" />
+                                <Label Text="{Binding Stock}" FontSize="14" />
+                                <Button Text="Toevoegen aan categorie"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductCategoriesViewModel}}, Path=AddProductToCategoryCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </Grid>
+</ContentPage>

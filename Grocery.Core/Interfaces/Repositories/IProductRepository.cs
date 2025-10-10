@@ -4,6 +4,7 @@ namespace Grocery.Core.Interfaces.Repositories
 {
     public interface IProductRepository
     {
+
         public List<Product> GetAll();
 
         public Product? Get(int id);
