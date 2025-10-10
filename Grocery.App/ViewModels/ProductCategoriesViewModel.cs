@@ -16,23 +16,28 @@ namespace Grocery.App.ViewModels
     {
         private readonly IProductCategoryService _productCategoryService;
         private readonly IProductService _productService;
-        private string searchtText = "";
         public ObservableCollection<ProductCategory> ProductCategories { get; set; } = [];
         public ObservableCollection<Product> AvailableProducts { get; set; } = [];
+        public ObservableCollection<Product> UnassignedProducts { get; set; } = [];
 
         [ObservableProperty]
         Category category;
+
+        private string searchText = "";
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                SetProperty(ref searchText, value);
+                PerformSearch(value);
+            }
+        }
 
         public ProductCategoriesViewModel(IProductCategoryService productCategoryService, IProductService productService)
         {
             _productCategoryService = productCategoryService;
             _productService = productService;
-        }
-
-        partial void OnCategoryChanged(Category? oldValue, Category newValue)
-        {
-            // Laad de gekoppelde producten als de categorie verandert
-            GetAvailableProducts();
         }
 
         private void GetAvailableProducts()
@@ -43,12 +48,12 @@ namespace Grocery.App.ViewModels
             if (Category is null)
                 return;
 
-            // Haal alle koppelingen voor deze categorie op
+            // Get all product-category links for this category
             var productCategories = _productCategoryService.GetAllOnCategoryId(Category.Id);
 
             foreach (var pc in productCategories)
             {
-                // Haal het product op
+                // Get the product for each link
                 var product = _productService.Get(pc.ProductId);
                 if (product != null)
                 {
@@ -57,25 +62,55 @@ namespace Grocery.App.ViewModels
                 }
             }
         }
+
+        private void GetUnassignedProducts()
+        {
+            UnassignedProducts.Clear();
+
+            // Get all products
+            var allProducts = _productService.GetAll();
+
+            // Get all products already assigned to any category
+            var assignedProductIds = _productCategoryService.GetAll().Select(pc => pc.ProductId).ToHashSet();
+
+            // Filter products not assigned to any category
+            var unassigned = allProducts.Where(p => !assignedProductIds.Contains(p.Id)).ToList();
+
+            foreach (var product in unassigned)
+                UnassignedProducts.Add(product);
+        }
+
+        partial void OnCategoryChanged(Category? oldValue, Category newValue)
+        {
+            GetAvailableProducts();
+            GetUnassignedProducts();
+        }
+
         [RelayCommand]
-        public void AddProduct(Product product)
+        public void AddProductToCategory(Product product)
         {
             if (Category is null || product is null)
                 return;
 
-            // Maak een nieuwe ProductCategory aan
             var productCategory = new ProductCategory(0, Category.Id, product.Id);
-
-            // Voeg toe via de service
             _productCategoryService.Add(productCategory);
 
-            // Voeg toe aan de ObservableCollection voor de UI
             ProductCategories.Add(productCategory);
+            UnassignedProducts.Remove(product);
         }
+
         [RelayCommand]
         public void PerformSearch(string searchText)
         {
+            GetUnassignedProducts();
 
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var filtered = UnassignedProducts.Where(p => p.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+                UnassignedProducts.Clear();
+                foreach (var product in filtered)
+                    UnassignedProducts.Add(product);
+            }
         }
     }
 }
