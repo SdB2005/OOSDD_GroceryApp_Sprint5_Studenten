@@ -18,9 +18,9 @@ namespace Grocery.Core.Data.Repositories
                 new ProductCategory(2, 3, 2),
                 new ProductCategory(3, 2, 3),
                 new ProductCategory(4, 5, 4),
-                ];
+            ];
         }
-        public Models.ProductCategory Add(Models.ProductCategory item)
+        public ProductCategory Add(ProductCategory item)
         {
             productCategories.Add(item);
             return item;
@@ -28,6 +28,10 @@ namespace Grocery.Core.Data.Repositories
         public List<ProductCategory> GetAll()
         {
             return productCategories;
+        }
+        public List<ProductCategory> GetAllOnCategoryId(int categoryId)
+        {
+            return productCategories.Where(pc => pc.CategoryId == categoryId).ToList();
         }
     }
 }
